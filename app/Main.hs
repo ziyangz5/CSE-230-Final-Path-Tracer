@@ -1,6 +1,7 @@
 module Main where
 
-import Lib
+import SceneParser
+import ImageLib
 
 main :: IO ()
-main = someFunc
+main = writeImage
