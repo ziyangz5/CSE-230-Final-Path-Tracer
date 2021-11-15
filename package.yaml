@@ -22,9 +22,10 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.7 && < 5
 - JuicyPixels
-- vect == 0.4.7
+- linear
 - repa == 3.4.1.4
 - mtl
+- parsec
 
 library:
   source-dirs: src

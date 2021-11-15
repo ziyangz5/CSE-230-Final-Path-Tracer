@@ -39,9 +39,10 @@ library
   build-depends:
       JuicyPixels
     , base >=4.7 && <5
+    , linear
     , mtl
+    , parsec
     , repa ==3.4.1.4
-    , vect ==0.4.7
   default-language: Haskell2010
 
 executable CSE230-Final-Path-Tracer-exe
@@ -55,9 +56,10 @@ executable CSE230-Final-Path-Tracer-exe
       CSE230-Final-Path-Tracer
     , JuicyPixels
     , base >=4.7 && <5
+    , linear
     , mtl
+    , parsec
     , repa ==3.4.1.4
-    , vect ==0.4.7
   default-language: Haskell2010
 
 test-suite CSE230-Final-Path-Tracer-test
@@ -72,7 +74,8 @@ test-suite CSE230-Final-Path-Tracer-test
       CSE230-Final-Path-Tracer
     , JuicyPixels
     , base >=4.7 && <5
+    , linear
     , mtl
+    , parsec
     , repa ==3.4.1.4
-    , vect ==0.4.7
   default-language: Haskell2010

@@ -1,9 +1,14 @@
 module RTPrimitive where
-import Data.Vect ( Vec3, Mat4 )
 
-data Material = MkMaterial Vec3 Vec3 Vec3 Float deriving (Show)-- Diffuse, Specular, Emission, Shininess. Will be changed after path tracing (roughness)
+import Linear ( M44, V3 )
 
-data Sphere = MkSphere Float Vec3 Material Mat4 deriving (Show)
-data Triangle = MkTri Vec3 Vec3 Vec3 Material Mat4 deriving (Show)
-data PointLight = MkPL Float Vec3 deriving (Show) -- will be deprecated after path tracing
-data Ray = MkRay Vec3 Vec3 deriving (Show)-- Starting point, Direction
+
+data Material = MkMaterial (V3 Float) (V3 Float) (V3 Float) (V3 Float) Float deriving (Show)-- Ambient, Diffuse, Specular, Emission, Shininess. Will be changed after path tracing (roughness)
+
+data Shape = Sphere Float (V3 Float) Material (M44 Float) (M44 Float) 
+           | Triangle (V3 Float) (V3 Float) (V3 Float) Material (M44 Float) (M44 Float) deriving (Show)
+
+data PointLight = MkPL Float (V3 Float) (M44 Float) (M44 Float) deriving (Show) -- will be deprecated after path tracing
+data Ray = MkRay (V3 Float) (V3 Float) deriving (Show)-- Starting point, Direction
+
+data Camera = Camera (V3 Float) (V3 Float) (V3 Float) (V3 Float) (V3 Float) (V3 Float) Float deriving (Show)

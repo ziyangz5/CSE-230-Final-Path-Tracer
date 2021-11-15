@@ -1,53 +1,72 @@
 module SceneCommand where
-import Data.Vect (Vec3, Mat4)
 import RTPrimitive
 import GHC.Show (Show)
+import Linear ( M44, V3 )
 
 
-data Command = Seq Command Command
-             | Tri Vec3 Vec3 Vec3
-             | Sph Vec3 Float
-             | PL Vec3 Float
-             | Trans Vec3
-             | Rot Float Vec3
-             | Scale Vec3
-             | Diffuse Vec3
-             | Emission Vec3
-             | Specular Vec3
+data Command = 
+               Tri Int Int Int
+             | Sph (V3 Float) Float
+             | PL (V3 Float) Float
+             | Trans (V3 Float)
+             | Rot Float (V3 Float)
+             | Scale (V3 Float)
+             | Ambient (V3 Float)
+             | Diffuse (V3 Float)
+             | Emission (V3 Float)
+             | Specular (V3 Float)
              | Shininess Float
              | Push
              | Pop
-             | End
+             | Vert (V3 Float)
+             | Cam (V3 Float) (V3 Float) (V3 Float) Float
+             | Path String
+             | Depth Int
+             | Size Int Int
+             | Pass
+    deriving (Show)
 
-newtype Store = MkStore ([Sphere], [Triangle], [PointLight],[Mat4],Material) deriving (Show)
+newtype Store = MkStore ([Shape],[PointLight],[M44 Float],Material,[V3 Float],Camera,String,Int,(Int,Int)) deriving (Show)
 
-getSphereList :: Store -> [Sphere]
-getSphereList (MkStore (sl, tl, pl,trans,mat)) = sl
-
-getTriangleList :: Store -> [Triangle]
-getTriangleList (MkStore (sl, tl, pl,trans,mat)) = tl
+getShapeList :: Store -> [Shape]
+getShapeList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = sl
 
 getPointLightList :: Store -> [PointLight]
-getPointLightList (MkStore (sl, tl, pl,trans,mat)) = pl
+getPointLightList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = pl
 
-getTransform :: Store -> [Mat4]
-getTransform (MkStore (sl, tl, pl,trans,mat)) = trans
+getTransform :: Store -> [M44 Float]
+getTransform (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = trans
 
 getMaterial :: Store -> Material
-getMaterial (MkStore (sl, tl, pl,trans,mat)) = mat
+getMaterial (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = mat
+
+getVertList :: Store -> [V3 Float]
+getVertList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = vl
 
 
-setSphereList :: Store -> [Sphere] -> Store
-setSphereList (MkStore (sl, tl, pl,trans,mat)) nsl = MkStore (nsl, tl, pl,trans,mat)
-
-setTriangleList :: Store -> [Triangle] -> Store
-setTriangleList (MkStore (sl, tl, pl,trans,mat)) ntl = MkStore (sl, ntl, pl,trans,mat)
+setShapeList :: Store -> [Shape] -> Store
+setShapeList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) nsl = MkStore (nsl, pl,trans,mat,vl,cam,path,depth,size)
 
 setPointLightList :: Store -> [PointLight] -> Store
-setPointLightList (MkStore (sl, tl, pl,trans,mat)) npll = MkStore (sl, tl, npll,trans,mat)
+setPointLightList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) npll = MkStore (sl, npll,trans,mat,vl,cam,path,depth,size)
 
-setTransform :: Store -> [Mat4] -> Store
-setTransform (MkStore (sl, tl, pl,trans,mat)) ntrans = MkStore (sl, tl, pl,ntrans,mat)
+setTransform :: Store -> [M44 Float] -> Store
+setTransform (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) ntrans = MkStore (sl, pl,ntrans,mat,vl,cam,path,depth,size)
 
 setMat :: Store -> Material -> Store
-setMat (MkStore (sl, tl, pl,trans,mat)) nmat = MkStore (sl, tl, pl,trans,nmat)
+setMat (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) nmat = MkStore (sl, pl,trans,nmat,vl,cam,path,depth,size)
+
+setVertList :: Store -> [V3 Float] -> Store
+setVertList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) nvl = MkStore (sl, pl,trans,mat,nvl,cam,path,depth,size)
+
+setCam :: Store -> Camera -> Store
+setCam (MkStore (sl, pl,trans,mat,vl,_,path,depth,size)) ncam = MkStore (sl, pl,trans,mat,vl,ncam,path,depth,size)
+
+setPath :: Store -> String -> Store
+setPath (MkStore (sl, pl,trans,mat,vl,cam,_,depth,size)) npath = MkStore (sl, pl,trans,mat,vl,cam,npath,depth,size)
+
+setDepth :: Store -> Int -> Store
+setDepth (MkStore (sl, pl,trans,mat,vl,cam,path,_,size)) ndepth = MkStore (sl, pl,trans,mat,vl,cam,path,ndepth,size)
+
+setSize :: Store -> (Int,Int) -> Store
+setSize (MkStore (sl, pl,trans,mat,vl,cam,path,depth,_)) nsize = MkStore (sl, pl,trans,mat,vl,cam,path,depth,nsize)
