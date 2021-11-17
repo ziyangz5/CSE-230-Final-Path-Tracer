@@ -20,12 +20,16 @@ extra-source-files:
 description:         Please see the README on GitHub at <https://github.com/githubuser/CSE230-Final-Path-Tracer#readme>
 
 dependencies:
-- base >= 4.7 && < 5
+- base ==4.*
 - JuicyPixels
 - linear
 - repa == 3.4.1.4
 - mtl
 - parsec
+- tuple
+- repa-io
+- JuicyPixels-repa
+- JuicyPixels-extra
 
 library:
   source-dirs: src

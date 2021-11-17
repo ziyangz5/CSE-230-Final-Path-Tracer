@@ -4,6 +4,7 @@ import Text.Parsec
 import Text.Parsec.String
 import SceneCommand as C
 import Linear ( V3(..) )
+import SceneEval (execC, defaultState)
 
 intP :: Parser Int
 intP =  do{
@@ -35,7 +36,7 @@ _nfloatP = do{
             return  $ read ("-"++n1++"."++n2);
            }
 
-floatP :: Parser Float 
+floatP :: Parser Float
 floatP = do
     {
         try _nfloatP <|> try _pfloatP
@@ -108,7 +109,7 @@ commentP :: Parser Command
 commentP = do
     {
         string "#";
-        many letter;
+        optional $ many1 $ noneOf "\n";
         return C.Pass;
     }
 
@@ -138,7 +139,7 @@ popP = do
         spaces;
         string "popTransform";
         spaces;
-        return C.Push
+        return C.Pop
     }
 
 triP :: Parser Command
@@ -204,7 +205,7 @@ scaleP = do
 transfromP :: Parser Command
 transfromP = do
     {
-        try rotateP <|> try translateP <|> scaleP
+        try pushP <|> try popP <|> try rotateP <|> try translateP <|> scaleP
     }
 
 ambientP :: Parser Command
@@ -249,7 +250,8 @@ shininessP :: Parser Command --TODO: change keyword
 shininessP = do
     {
         spaces;
-        string "shininessP";
+        string "shininess";
+        spaces;
         intensity <- floatP;
         spaces;
         return $ C.Shininess intensity
@@ -261,11 +263,41 @@ materialP = do
         try ambientP <|> try diffuseP <|> try specularP <|> try emissionP <|>  shininessP
     }
 
+pointP :: Parser Command
+pointP = do
+    {
+        spaces;
+        string "point";
+        v <- vec3P;
+        spaces;
+        c <- vec3P;
+        spaces;
+        return $ C.PL v c
+    }
+
+directionalP :: Parser Command
+directionalP = do
+    {
+        spaces;
+        string "directional";
+        v <- vec3P;
+        spaces;
+        c <- vec3P;
+        spaces;
+        return $ C.DL v c
+    }
+
+lightP :: Parser Command
+lightP = do
+    {
+        try pointP <|> directionalP;
+    }
+
 outputP :: Parser Command
 outputP = do
     {
         spaces;
-        string "output"; 
+        string "output";
         spaces;
         path <- many1 letter;
         spaces;
@@ -276,22 +308,62 @@ maxdepthP :: Parser Command
 maxdepthP = do
     {
         spaces;
-        string "output"; 
+        string "output";
         spaces;
         d <- intP;
         spaces;
         return $ C.Depth d
     }
 
-paramP :: Parser Command 
+paramP :: Parser Command
 paramP = do
     {
-        try sizeP <|> try outputP <|>  maxdepthP;
+        try sizeP <|> try outputP <|>  try maxdepthP <|> try commentP <|> maxvertP;
     }
+
+eosP :: Parser Command
+eosP = do
+    {
+        string "EOS";
+        return C.End;
+    }
+
+sceneP :: Parser [Command]
+sceneP = do
+            spaces;
+            c <- try paramP <|> try materialP <|> try transfromP <|> try transfromP <|> try lightP <|> try triP <|> try cameraP  <|> try sphereP <|> try vertexP <|> eosP;
+            case c of
+                C.End -> return []
+                C.Pass -> do
+                            try sceneP;
+                otherwise -> do
+                            cs <-  try sceneP;
+                            return (c : cs);
+
+
+
 
 parseFromString :: Parser a -> String -> Either ParseError a
 parseFromString p s = runParser p () "DUMMY" s
 
+parseFile :: FilePath -> IO (Either ParseError [Command])
+parseFile f = parseFromFile sceneP f
+
+runFile :: FilePath -> IO Store
+runFile s = do
+  p <- parseFile s
+  case p of
+    Left err   -> do {print err;return defaultState}
+    Right commands -> return (execC commands defaultState)
+
+-- >>> runFile "Scene/scene1.test"
+-- MkStore ([Triangle (V3 (-1.0) (-1.0) 0.0) (V3 1.0 (-1.0) 0.0) (V3 1.0 1.0 0.0) (MkMaterial (V3 0.0 0.0 0.0) (V3 0.75 0.7 0.65) (V3 0.25 0.25 0.25) (V3 0.0 0.0 0.0) 25.0) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V3 (V3 1.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 0.0 1.0))],[PointLight (V3 4.0 0.0 4.0) (V3 0.5 0.5 0.5) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)),DirLight (V3 0.0 0.0 1.0) (V3 0.5 0.5 0.5) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0))],[V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)],MkMaterial (V3 0.0 0.0 0.0) (V3 0.75 0.7 0.65) (V3 0.25 0.25 0.25) (V3 0.0 0.0 0.0) 25.0,[V3 (-1.0) (-1.0) 0.0,V3 1.0 (-1.0) 0.0,V3 1.0 1.0 0.0],Camera (V3 0.0 (-4.0) 0.5) (V3 0.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 (-0.99227786) 0.12403473) (V3 0.12403473 0.0 (-0.0)) (V3 0.0 1.53846145e-2 0.123076916) 0.5235988 0.5235988,"./output.png",2,(100,100))
+
+-- >>> parseFile "Scene/scene1.test"
+-- Right [Size 640 480,Cam (V3 0.0 (-4.0) 0.5) (V3 0.0 0.0 0.0) (V3 0.0 1.0 0.0) 30.0,Ambient (V3 0.0 0.0 0.0),Diffuse (V3 0.75 0.7 0.65),Specular (V3 0.25 0.25 0.25),Shininess 25.0,Vert (V3 (-10.0) (-10.0) 0.0),Vert (V3 10.0 (-10.0) 0.0),Vert (V3 10.0 10.0 0.0),Vert (V3 (-10.0) 10.0 0.0),Sph (V3 0.0 0.0 0.25) 0.25,Sph (V3 2.0 (-10.0) 0.25) 0.25,Sph (V3 (-2.0) 2.0 0.25) 0.25]
+
+-- >>> parseFromString floatP "2"
+-- Right 2.0
 
 -- >>> parseFromString floatP "1"
 -- Right 1.0

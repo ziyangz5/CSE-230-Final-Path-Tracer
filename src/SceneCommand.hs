@@ -2,12 +2,14 @@ module SceneCommand where
 import RTPrimitive
 import GHC.Show (Show)
 import Linear ( M44, V3 )
+import RTPrimitive (Light, Camera (Camera))
 
 
 data Command = 
                Tri Int Int Int
              | Sph (V3 Float) Float
-             | PL (V3 Float) Float
+             | PL (V3 Float) (V3 Float)
+             | DL (V3 Float) (V3 Float)
              | Trans (V3 Float)
              | Rot Float (V3 Float)
              | Scale (V3 Float)
@@ -24,14 +26,15 @@ data Command =
              | Depth Int
              | Size Int Int
              | Pass
+             | End
     deriving (Show)
 
-newtype Store = MkStore ([Shape],[PointLight],[M44 Float],Material,[V3 Float],Camera,String,Int,(Int,Int)) deriving (Show)
+newtype Store = MkStore ([Shape],[Light],[M44 Float],Material,[V3 Float],Camera,String,Int,(Int,Int)) deriving (Show)
 
 getShapeList :: Store -> [Shape]
 getShapeList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = sl
 
-getPointLightList :: Store -> [PointLight]
+getPointLightList :: Store -> [Light]
 getPointLightList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = pl
 
 getTransform :: Store -> [M44 Float]
@@ -43,11 +46,24 @@ getMaterial (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = mat
 getVertList :: Store -> [V3 Float]
 getVertList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = vl
 
+getImgSize :: Store -> (Int,Int)
+getImgSize (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = size
+
+getDepth :: Store -> Int
+getDepth (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = depth
+
+getPath :: Store -> String
+getPath (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = path
+
+getCamera :: Store -> Camera
+getCamera (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) = cam
+
+
 
 setShapeList :: Store -> [Shape] -> Store
 setShapeList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) nsl = MkStore (nsl, pl,trans,mat,vl,cam,path,depth,size)
 
-setPointLightList :: Store -> [PointLight] -> Store
+setPointLightList :: Store -> [Light] -> Store
 setPointLightList (MkStore (sl, pl,trans,mat,vl,cam,path,depth,size)) npll = MkStore (sl, npll,trans,mat,vl,cam,path,depth,size)
 
 setTransform :: Store -> [M44 Float] -> Store
