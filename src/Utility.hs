@@ -1,5 +1,9 @@
 module Utility where
 import Linear ( M33, M44, V3(V3), V4(V4) )
+import Data.Word (Word64)
+import Random.MWC.Primitive (Seed)
+import Random.MWC.Pure
+import Random.MWC.Pure (seed)
 
 
 identity3 :: M33 Float
@@ -18,6 +22,13 @@ lastToOne (V4 (V4 a00 a01 a02 a03)
                                           (V4 a10 a11 a12 a13 )
                                           (V4 a20 a21 a22 a23 )
                                           (V4 a30 a31 a32 1 )
+
+scaleMax :: M44 Float -> Float
+scaleMax (V4 (V4 a00 a01 a02 a03)
+             (V4 a10 a11 a12 a13 )
+             (V4 a20 a21 a22 a23 )
+             (V4 a30 a31 a32 a33 )) = max 1.0 (max a00 (max a11 a22))
+
 
 deg2rad :: Float -> Float
 deg2rad deg = deg * 4.0 * atan 1.0 / 180.0
@@ -45,6 +56,18 @@ m4tom3 (V4 (V4 a00 a01 a02 a03)
 
 (@==@) :: Float -> Float -> Bool
 t1 @==@ t2 = abs (t1-t2) < 0.000001
+
+getRand :: Seed -> (Float,Seed)
+getRand = range_random (-1,1)
+
+get3X :: V3 Float -> Float 
+get3X (V3 x y z) = x
+
+get3Y :: V3 Float -> Float 
+get3Y (V3 x y z) = y
+
+get3Z :: V3 Float -> Float 
+get3Z (V3 x y z) = z
 
 -- >>> 3 `sm4` identity4 
 -- Mat4 (Vec4 3.0 0.0 0.0 0.0) (Vec4 0.0 3.0 0.0 0.0) (Vec4 0.0 0.0 3.0 0.0) (Vec4 0.0 0.0 0.0 3.0)

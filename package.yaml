@@ -30,7 +30,8 @@ dependencies:
 - repa-io
 - JuicyPixels-repa
 - JuicyPixels-extra
-
+- MonadRandom
+- AC-Random
 library:
   source-dirs: src
 

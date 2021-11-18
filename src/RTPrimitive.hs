@@ -12,7 +12,7 @@ import Linear
       cross,
       (^*),
       Metric(dot),
-      V4(V4) ) 
+      V4(V4), Additive ((^-^)), (*^) )
 import Utility (v4tov3, identity4, v3tov4, m4tom3)
 import Transform (translate)
 
@@ -30,16 +30,37 @@ data Camera = Camera (V3 Float) (V3 Float) (V3 Float) (V3 Float) (V3 Float) (V3 
 
 
 hasIntersection:: Ray->Shape->Maybe (V3 Float,V3 Float, Float)
-hasIntersection ray (Sphere r loc _ trans invTrans invTT) = error "?"
+hasIntersection (Ray (V3 o1 o2 o3) (V3 d1 d2 d3) rtype) (Sphere r loc _ trans invTrans invTT) =
+    if collided then Just (hitPos,normalize(invTT !* normalize norm),t) else Nothing
+        where
+            (collided,t) = sphereIntersect (Ray torg tdir rtype) r loc
+            torg = v4tov3 $ invTrans !* V4 o1 o2 o3 1.0
+            tdir = v4tov3 $ invTrans !* V4 d1 d2 d3 0.0
+            hit = torg + tdir ^* t
+            hitPos = v4tov3 (trans !* v3tov4 hit 1.0)
+            norm = normalize(hit - loc)
 
 hasIntersection (Ray (V3 o1 o2 o3) (V3 d1 d2 d3) rtype) (Triangle v1 v2 v3 _ trans invTrans invTT) =
-    if collided then Just (hitPos,invTT !* normalize norm,t) else Nothing
+    if collided then Just (hitPos,normalize(invTT !* normalize norm),t) else Nothing
         where
             (collided,t,norm) = triIntersect (Ray torg tdir rtype) v1 v2 v3
             torg = v4tov3 $ invTrans !* V4 o1 o2 o3 1.0
             tdir = v4tov3 $ invTrans !* V4 d1 d2 d3 0.0
             hitPos = v4tov3 (trans !* v3tov4 (torg + tdir ^* t) 1.0)
 
+
+sphereIntersect:: Ray -> Float -> V3 Float -> (Bool, Float)
+sphereIntersect (Ray org dir _) r loc = (t>0,t)
+                                        where
+                                            a = dir `dot` dir
+                                            b = (2 *^ dir) `dot` (org ^-^ loc)
+                                            c = (org ^-^ loc) `dot` (org ^-^  loc) - r * r
+                                            delta = b * b - 4 * a * c;
+                                            t1 = (-b + sqrt delta) / (2 * a)
+                                            t2 = (-b - sqrt delta) / (2 * a)
+                                            t' = min t1 t2
+                                            t = if t' < 0 then max t1 t2 else t'
+                                                --dot((rayTrans.origin - sphere.center), (rayTrans.origin - sphere.center)) - sphere.r * sphere.r;
 
 -- formula from http://graphics.stanford.edu/courses/cs348b-17-spring-content/lectures/02_rt1/02_rt1_slides.pdf
 triIntersect :: Ray -> V3 Float -> V3 Float -> V3 Float-> (Bool, Float, V3 Float)

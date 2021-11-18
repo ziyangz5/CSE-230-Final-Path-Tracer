@@ -4,15 +4,40 @@ import Linear
 import RTPrimitive (Camera(Camera), Ray (Ray), Shape, hasIntersection)
 import Data.Maybe (isNothing)
 import Data.Tuple.Select
-import Utility ((@==@))
-import Data.List
+import Utility ((@==@), getRand)
+import Data.List ( foldl1',foldl', elemIndex )
 import Shader (simpleTestingShader)
+import Data.Word ( Word32)
+import Random.MWC.Primitive (Seed, seed)
 
-rayShoot:: Store -> Int -> Int ->  V3 Float
-rayShoot scene x y = rayTrace (Ray eye dir 0) scene
+rayCast:: Store -> Int -> Int ->  V3 Float
+rayCast scene x y = sampling scene i j (seed bseed) sampleNum ^/ sampleNum
     where
         i = (fromIntegral x:: Float) + 0.5
         j = (fromIntegral y:: Float) + 0.5
+        sampleNum = 150.0
+        bseed = [fromIntegral x,fromIntegral y]
+
+-- rayShoot:: Store -> Int -> Int ->  V3 Float
+-- rayShoot scene x y = singleRayShoot scene i j 
+--     where
+--         i = (fromIntegral x:: Float) + 0.5
+--         j = (fromIntegral y:: Float) + 0.5
+--         sampleNum = 25
+--         bseed = [fromIntegral x,fromIntegral y]
+
+sampling:: Store -> Float -> Float -> Seed -> Float ->V3 Float
+sampling scene i j seed count = if count > 0
+                                    then singleRayShoot scene (i + rnd1/2) (j + rnd2/2) + sampling scene i j nseed2 (count-1)
+                                    else 0
+                                where
+                                    (rnd1,nseed) = getRand seed
+                                    (rnd2,nseed2) = getRand nseed
+
+
+singleRayShoot :: Store -> Float -> Float ->  V3 Float
+singleRayShoot scene i j = rayTrace (Ray eye dir 0) scene
+    where
         (iwidth, iheight) = getImgSize scene
         (fwidht, fheight) = (fromIntegral iwidth:: Float,fromIntegral iheight:: Float)
         Camera eye center up w u v fovx fovy = getCamera scene
@@ -22,14 +47,13 @@ rayShoot scene x y = rayTrace (Ray eye dir 0) scene
 
 
 
-    
 
 rayTrace:: Ray -> Store -> V3 Float
 rayTrace ray scene =
     case hitResult of
         Nothing ->  V3 0 0 0
-        Just (shape,hitPos,normal) -> simpleTestingShader scene shape hitPos normal
-            
+        Just (shape,hitPos,normal) -> simpleTestingShader scene shape hitPos normal ray
+
     where
         hitResult = getClosetCollision $ getCollisions ray (getShapeList scene)
 

@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      BVH
       ImageLib
       Renderer
       RTPrimitive
@@ -39,9 +40,11 @@ library
   hs-source-dirs:
       src
   build-depends:
-      JuicyPixels
+      AC-Random
+    , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
+    , MonadRandom
     , base ==4.*
     , linear
     , mtl
@@ -59,10 +62,12 @@ executable CSE230-Final-Path-Tracer-exe
       app
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      CSE230-Final-Path-Tracer
+      AC-Random
+    , CSE230-Final-Path-Tracer
     , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
+    , MonadRandom
     , base ==4.*
     , linear
     , mtl
@@ -81,10 +86,12 @@ test-suite CSE230-Final-Path-Tracer-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      CSE230-Final-Path-Tracer
+      AC-Random
+    , CSE230-Final-Path-Tracer
     , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
+    , MonadRandom
     , base ==4.*
     , linear
     , mtl
