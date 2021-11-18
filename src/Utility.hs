@@ -2,8 +2,7 @@ module Utility where
 import Linear ( M33, M44, V3(V3), V4(V4) )
 import Data.Word (Word64)
 import Random.MWC.Primitive (Seed)
-import Random.MWC.Pure
-import Random.MWC.Pure (seed)
+import Random.MWC.Pure ( Seed, RangeRandom(range_random) )
 
 
 identity3 :: M33 Float

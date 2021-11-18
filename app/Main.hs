@@ -63,5 +63,3 @@ beginRayTrace scene _ (Z :. i :. j) = (fromIntegral (round $ r * 255),fromIntegr
                                         where
                                                 V3 r g b = rayCast scene i j
 
--- >>>tesdt
--- Data.Array.Repa.Eval.Fill.fromList: provide array shape does not match list length
