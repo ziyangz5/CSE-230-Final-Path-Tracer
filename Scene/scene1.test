@@ -21,7 +21,6 @@ vertex -1 -1 -1
 vertex +1 -1 -1
 
 
-ambient 1 0 1
 specular 0 0 0
 shininess 30
 emission 0 0 0
@@ -35,6 +34,7 @@ diffuse 0 0 0.8
 
 pushTransform
 
+ambient 0.005 0 0
 #red
 pushTransform
 translate -1 1 0
@@ -45,6 +45,7 @@ tri 0 1 2
 tri 0 2 3
 popTransform
 
+ambient 0 0.005 0
 #green
 pushTransform
 translate 1 1 0
@@ -55,6 +56,7 @@ tri 0 1 2
 tri 0 2 3
 popTransform
 
+ambient 0.005 0.005 0.005
 #back
 pushTransform
 scale 1 1 1

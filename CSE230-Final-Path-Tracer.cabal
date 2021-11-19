@@ -44,9 +44,9 @@ library
     , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
-    , MonadRandom
     , base ==4.*
     , linear
+    , mersenne-random-pure64
     , mtl
     , parsec
     , repa ==3.4.1.4
@@ -67,9 +67,9 @@ executable CSE230-Final-Path-Tracer-exe
     , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
-    , MonadRandom
     , base ==4.*
     , linear
+    , mersenne-random-pure64
     , mtl
     , parsec
     , repa ==3.4.1.4
@@ -91,9 +91,9 @@ test-suite CSE230-Final-Path-Tracer-test
     , JuicyPixels
     , JuicyPixels-extra
     , JuicyPixels-repa
-    , MonadRandom
     , base ==4.*
     , linear
+    , mersenne-random-pure64
     , mtl
     , parsec
     , repa ==3.4.1.4

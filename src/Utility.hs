@@ -3,7 +3,15 @@ import Linear ( M33, M44, V3(V3), V4(V4) )
 import Data.Word (Word64)
 import Random.MWC.Primitive (Seed)
 import Random.MWC.Pure ( Seed, RangeRandom(range_random) )
+import System.Random.Mersenne.Pure64
+import Data.List (unfoldr)
 
+
+getRandPair :: Word64 -> (Float, Float)
+getRandPair seed = (realToFrac rnd1,realToFrac rnd2)
+    where
+        (rnd1,seed2) = randomDouble $ pureMT seed
+        (rnd2,_) = randomDouble seed2
 
 identity3 :: M33 Float
 identity3 = V3 (V3 1 0 0) (V3 0 1 0) (V3 0 0 1)
@@ -59,14 +67,25 @@ t1 @==@ t2 = abs (t1-t2) < 0.000001
 getRand :: Seed -> (Float,Seed)
 getRand = range_random (-1,1)
 
-get3X :: V3 Float -> Float 
+get3X :: V3 Float -> Float
 get3X (V3 x y z) = x
 
-get3Y :: V3 Float -> Float 
+get3Y :: V3 Float -> Float
 get3Y (V3 x y z) = y
 
-get3Z :: V3 Float -> Float 
+get3Z :: V3 Float -> Float
 get3Z (V3 x y z) = z
 
+(^/^) :: V3 Float -> V3 Float -> V3 Float
+(^/^) (V3 a1 a2 a3) (V3 b1 b2 b3) = V3 (a1/b1)(a2/b2)(a3/b3)
+
+capV3 :: V3 Float -> V3 Float
+capV3 (V3 a1 a2 a3) = V3 (min 1 a1) (min 1 a2) (min 1 a3)
+
+
+epsilon :: Float
+epsilon = 0.00001
 -- >>> 3 `sm4` identity4 
--- Mat4 (Vec4 3.0 0.0 0.0 0.0) (Vec4 0.0 3.0 0.0 0.0) (Vec4 0.0 0.0 3.0 0.0) (Vec4 0.0 0.0 0.0 3.0)
+-- <interactive>:60:4-8: error:
+--     Variable not in scope: sm4 :: t0 -> M44 Float -> t
+--

@@ -4,19 +4,22 @@ import Linear
 import RTPrimitive (Camera(Camera), Ray (Ray), Shape, hasIntersection)
 import Data.Maybe (isNothing)
 import Data.Tuple.Select
-import Utility ((@==@), getRand)
+import Utility ((@==@), getRand, getRandPair, capV3)
 import Data.List ( foldl1',foldl', elemIndex )
-import Shader (simpleTestingShader)
-import Data.Word ( Word32)
-import Random.MWC.Primitive (Seed, seed)
+import Shader (simpleRayCastShader)
+import Data.Word ( Word64)
+import Random.MWC.Primitive
+import BVH (BVHTree, getBVHClosetHit)
+import qualified Debug.Trace
+import Random.MWC.Pure (RangeRandom(range_random))
+import Data.Bits
 
-rayCast:: Store -> Int -> Int ->  V3 Float
-rayCast scene x y = sampling scene i j (seed bseed) sampleNum ^/ sampleNum
+rayCast:: Store -> BVHTree -> Int -> Int -> Int ->  V3 Float
+rayCast scene bvh x y sindex = capV3 $ sampling scene bvh i j x y bseed
     where
         i = (fromIntegral x:: Float) + 0.5
         j = (fromIntegral y:: Float) + 0.5
-        sampleNum = 150.0
-        bseed = [fromIntegral x,fromIntegral y]
+        bseed =  fromIntegral sindex `shiftL` 40 + fromIntegral x `shiftL` 30 + fromIntegral y `shiftL` 30
 
 -- rayShoot:: Store -> Int -> Int ->  V3 Float
 -- rayShoot scene x y = singleRayShoot scene i j 
@@ -26,17 +29,14 @@ rayCast scene x y = sampling scene i j (seed bseed) sampleNum ^/ sampleNum
 --         sampleNum = 25
 --         bseed = [fromIntegral x,fromIntegral y]
 
-sampling:: Store -> Float -> Float -> Seed -> Float ->V3 Float
-sampling scene i j seed count = if count > 0
-                                    then singleRayShoot scene (i + rnd1/2) (j + rnd2/2) + sampling scene i j nseed2 (count-1)
-                                    else 0
+sampling:: Store -> BVHTree -> Float -> Float-> Int -> Int -> Word64 -> V3 Float
+sampling scene bvh i j x y bseed = singleRayShoot scene bvh (i + rnd1) (j + rnd2)
                                 where
-                                    (rnd1,nseed) = getRand seed
-                                    (rnd2,nseed2) = getRand nseed
+                                    (rnd1,rnd2) = getRandPair bseed
 
 
-singleRayShoot :: Store -> Float -> Float ->  V3 Float
-singleRayShoot scene i j = rayTrace (Ray eye dir 0) scene
+singleRayShoot :: Store -> BVHTree  -> Float -> Float ->  V3 Float
+singleRayShoot scene bvh i j = rayTrace (Ray eye dir 0) bvh scene
     where
         (iwidth, iheight) = getImgSize scene
         (fwidht, fheight) = (fromIntegral iwidth:: Float,fromIntegral iheight:: Float)
@@ -48,18 +48,19 @@ singleRayShoot scene i j = rayTrace (Ray eye dir 0) scene
 
 
 
-rayTrace:: Ray -> Store -> V3 Float
-rayTrace ray scene =
+rayTrace:: Ray-> BVHTree -> Store -> V3 Float
+rayTrace ray bvh scene =
     case hitResult of
         Nothing ->  V3 0 0 0
-        Just (shape,hitPos,normal) -> simpleTestingShader scene shape hitPos normal ray
+        Just (shape,hitPos,normal,_) -> simpleRayCastShader scene bvh shape hitPos normal ray
 
     where
-        hitResult = getClosetCollision $ getCollisions ray (getShapeList scene)
+        hitResult = getBVHClosetHit ray bvh --getClosetCollision $ getCollisions ray (getShapeList scene)
+        --hitResult = getClosetCollision $ getCollisions ray (getShapeList scene)
 
-getClosetCollision :: [(Shape,V3 Float,V3 Float,Float)] -> Maybe (Shape,V3 Float,V3 Float)
+getClosetCollision :: [(Shape,V3 Float,V3 Float,Float)] -> Maybe (Shape,V3 Float,V3 Float,Float)
 getClosetCollision [] = Nothing
-getClosetCollision cs = Just (shape,hitPos,normal)
+getClosetCollision cs = Just (shape,hitPos,normal,t)
                         where
                             ts = map sel4 cs
                             minindex = elemIndex (foldl1' min ts) ts
