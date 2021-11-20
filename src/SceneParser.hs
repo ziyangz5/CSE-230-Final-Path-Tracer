@@ -308,7 +308,7 @@ maxdepthP :: Parser Command
 maxdepthP = do
     {
         spaces;
-        string "output";
+        string "maxdepth";
         spaces;
         d <- intP;
         spaces;

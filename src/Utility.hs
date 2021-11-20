@@ -7,11 +7,11 @@ import System.Random.Mersenne.Pure64
 import Data.List (unfoldr)
 
 
-getRandPair :: Word64 -> (Float, Float)
-getRandPair seed = (realToFrac rnd1,realToFrac rnd2)
+getRandPair :: PureMT -> (Float, Float,PureMT)
+getRandPair seed = (realToFrac rnd1,realToFrac rnd2,rseed)
     where
-        (rnd1,seed2) = randomDouble $ pureMT seed
-        (rnd2,_) = randomDouble seed2
+        (rnd1,seed2) = randomDouble seed
+        (rnd2,rseed) = randomDouble seed2
 
 identity3 :: M33 Float
 identity3 = V3 (V3 1 0 0) (V3 0 1 0) (V3 0 0 1)
@@ -84,7 +84,7 @@ capV3 (V3 a1 a2 a3) = V3 (min 1 a1) (min 1 a2) (min 1 a3)
 
 
 epsilon :: Float
-epsilon = 0.00001
+epsilon = 0.0001
 -- >>> 3 `sm4` identity4 
 -- <interactive>:60:4-8: error:
 --     Variable not in scope: sm4 :: t0 -> M44 Float -> t

@@ -1,42 +1,36 @@
 module Renderer where
-import SceneCommand (Store, getImgSize, getCamera, getShapeList, getMaterial)
+import SceneCommand (Store, getImgSize, getCamera, getShapeList, getMaterial, getDepth)
 import Linear
 import RTPrimitive (Camera(Camera), Ray (Ray), Shape, hasIntersection)
 import Data.Maybe (isNothing)
 import Data.Tuple.Select
 import Utility ((@==@), getRand, getRandPair, capV3)
 import Data.List ( foldl1',foldl', elemIndex )
-import Shader (simpleRayCastShader)
+import Shader
 import Data.Word ( Word64)
 import Random.MWC.Primitive
 import BVH (BVHTree, getBVHClosetHit)
 import qualified Debug.Trace
 import Random.MWC.Pure (RangeRandom(range_random))
 import Data.Bits
+import System.Random.Mersenne.Pure64 (pureMT, PureMT)
 
 rayCast:: Store -> BVHTree -> Int -> Int -> Int ->  V3 Float
 rayCast scene bvh x y sindex = capV3 $ sampling scene bvh i j x y bseed
     where
         i = (fromIntegral x:: Float) + 0.5
         j = (fromIntegral y:: Float) + 0.5
-        bseed =  fromIntegral sindex `shiftL` 40 + fromIntegral x `shiftL` 30 + fromIntegral y `shiftL` 30
+        bseed =  fromIntegral (sindex*42 * (x*10+5) * (y*10+1)) `shiftL` 40 
 
--- rayShoot:: Store -> Int -> Int ->  V3 Float
--- rayShoot scene x y = singleRayShoot scene i j 
---     where
---         i = (fromIntegral x:: Float) + 0.5
---         j = (fromIntegral y:: Float) + 0.5
---         sampleNum = 25
---         bseed = [fromIntegral x,fromIntegral y]
 
 sampling:: Store -> BVHTree -> Float -> Float-> Int -> Int -> Word64 -> V3 Float
-sampling scene bvh i j x y bseed = singleRayShoot scene bvh (i + rnd1) (j + rnd2)
+sampling scene bvh i j x y bseed = singleRayShoot scene bvh (i + rnd1) (j + rnd2) rseed
                                 where
-                                    (rnd1,rnd2) = getRandPair bseed
+                                    (rnd1,rnd2,rseed) = getRandPair $ pureMT bseed
 
 
-singleRayShoot :: Store -> BVHTree  -> Float -> Float ->  V3 Float
-singleRayShoot scene bvh i j = rayTrace (Ray eye dir 0) bvh scene
+singleRayShoot :: Store -> BVHTree  -> Float -> Float -> PureMT -> V3 Float
+singleRayShoot scene bvh i j = rayTrace (Ray eye dir 0) bvh scene (getDepth scene)
     where
         (iwidth, iheight) = getImgSize scene
         (fwidht, fheight) = (fromIntegral iwidth:: Float,fromIntegral iheight:: Float)
@@ -48,14 +42,7 @@ singleRayShoot scene bvh i j = rayTrace (Ray eye dir 0) bvh scene
 
 
 
-rayTrace:: Ray-> BVHTree -> Store -> V3 Float
-rayTrace ray bvh scene =
-    case hitResult of
-        Nothing ->  V3 0 0 0
-        Just (shape,hitPos,normal,_) -> simpleRayCastShader scene bvh shape hitPos normal ray
-
-    where
-        hitResult = getBVHClosetHit ray bvh --getClosetCollision $ getCollisions ray (getShapeList scene)
+--getClosetCollision $ getCollisions ray (getShapeList scene)
         --hitResult = getClosetCollision $ getCollisions ray (getShapeList scene)
 
 getClosetCollision :: [(Shape,V3 Float,V3 Float,Float)] -> Maybe (Shape,V3 Float,V3 Float,Float)

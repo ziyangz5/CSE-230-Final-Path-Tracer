@@ -25,16 +25,16 @@ type FRGB8 = (Float, Float, Float)
 main :: IO ()
 main = do
           putStrLn "Initializing scene.."
-          scene <- runFile "Scene/scene1.test";
+          scene <- runFile "Scene/scene3.test";
           let bvh = evalState (buildBVH (getShapeList scene)) 0
           putStrLn "Initialized."
           putStrLn "Begin ray-tracing.."
-          let sampleNum = 20
+          let sampleNum = 65
           let snf = fromIntegral sampleNum
           fimg <-  rayTraceSampling sampleNum scene bvh
           img <- computeP $ R.map (\rgb -> colorMapping rgb snf) fimg
           putStrLn "Saving.."
-          (savePngImage "./test.png" . ImageRGB8. flipVertically . toImage) img
+          (savePngImage "./test3.png" . ImageRGB8. flipVertically . toImage) img
           putStrLn "Done"
 
 colorMapping :: (Float,Float,Float)->Float -> RGB8
