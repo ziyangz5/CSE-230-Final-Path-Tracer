@@ -30,7 +30,7 @@ sampling scene bvh i j x y bseed = singleRayShoot scene bvh (i + rnd1) (j + rnd2
 
 
 singleRayShoot :: Store -> BVHTree  -> Float -> Float -> PureMT -> V3 Float
-singleRayShoot scene bvh i j = rayTrace (Ray eye dir 0) bvh scene (getDepth scene)
+singleRayShoot scene bvh i j = rayTrace (Ray eye (normalize dir) 0) bvh scene (getDepth scene)
     where
         (iwidth, iheight) = getImgSize scene
         (fwidht, fheight) = (fromIntegral iwidth:: Float,fromIntegral iheight:: Float)

@@ -29,7 +29,7 @@ main = do
           let bvh = evalState (buildBVH (getShapeList scene)) 0
           putStrLn "Initialized."
           putStrLn "Begin ray-tracing.."
-          let sampleNum = 65
+          let sampleNum = 128
           let snf = fromIntegral sampleNum
           fimg <-  rayTraceSampling sampleNum scene bvh
           img <- computeP $ R.map (\rgb -> colorMapping rgb snf) fimg

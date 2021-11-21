@@ -12,6 +12,14 @@ getRandPair seed = (realToFrac rnd1,realToFrac rnd2,rseed)
     where
         (rnd1,seed2) = randomDouble seed
         (rnd2,rseed) = randomDouble seed2
+        
+getRand :: PureMT -> (Float,PureMT)
+getRand seed = (realToFrac rnd,nseed)
+    where
+        (rnd,nseed) = randomDouble seed
+
+average3 :: V3 Float -> Float 
+average3 (V3 a b c) = (a+b+c)/3
 
 identity3 :: M33 Float
 identity3 = V3 (V3 1 0 0) (V3 0 1 0) (V3 0 0 1)
@@ -64,8 +72,6 @@ m4tom3 (V4 (V4 a00 a01 a02 a03)
 (@==@) :: Float -> Float -> Bool
 t1 @==@ t2 = abs (t1-t2) < 0.000001
 
-getRand :: Seed -> (Float,Seed)
-getRand = range_random (-1,1)
 
 get3X :: V3 Float -> Float
 get3X (V3 x y z) = x
@@ -85,6 +91,9 @@ capV3 (V3 a1 a2 a3) = V3 (min 1 a1) (min 1 a2) (min 1 a3)
 
 epsilon :: Float
 epsilon = 0.0001
+
+sepsilon :: Float
+sepsilon = 0.00001
 -- >>> 3 `sm4` identity4 
 -- <interactive>:60:4-8: error:
 --     Variable not in scope: sm4 :: t0 -> M44 Float -> t
