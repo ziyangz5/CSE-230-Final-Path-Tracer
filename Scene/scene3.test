@@ -1,4 +1,4 @@
-size 640 520
+size 1024 768
 camera 0 2 15 0 -1 0 0 1 0 50
 maxdepth 5
 specular 0.7 0.7 0.7

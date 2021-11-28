@@ -4,7 +4,7 @@ import Linear
 import RTPrimitive (Camera(Camera), Ray (Ray), Shape, hasIntersection)
 import Data.Maybe (isNothing)
 import Data.Tuple.Select
-import Utility ((@==@), getRand, getRandPair, capV3)
+import Utility ((@==@), getRand, getRandPair, capV3, getCircleSample)
 import Data.List ( foldl1',foldl', elemIndex )
 import Shader
 import Data.Word ( Word64)
@@ -35,9 +35,12 @@ singleRayShoot scene bvh i j = rayTrace (Ray eye (normalize dir) 0) bvh scene (g
         (iwidth, iheight) = getImgSize scene
         (fwidht, fheight) = (fromIntegral iwidth:: Float,fromIntegral iheight:: Float)
         Camera eye center up w u v fovx fovy = getCamera scene
-        alpha = tan(fovx / 2) * ((i - fwidht / 2.0) / (fwidht / 2.0))
-        beta = tan(fovy / 2) * ((j - fheight / 2.0) / (fheight / 2.0))
-        dir = (alpha *^ u) ^+^ (beta *^ v) ^-^ w
+        vheight =  2 *tan(fovy/2)
+        vwidth = (fwidht/fheight) * vheight
+        hor = vwidth *^ u;
+        ver = vheight *^ v;
+        llcorner =  eye - hor/2 - ver/2 - w;
+        dir = llcorner + (j / (fheight - 1))*^ver+ (i/ (fwidht - 1))*^hor - eye
 
 
 

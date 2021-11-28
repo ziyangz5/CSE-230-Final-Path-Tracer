@@ -45,7 +45,7 @@ rotate rad axis = lastToOne(cos rad *!! ratMat1 !+! ((1 - cos rad) *!! ratMat2 a
 
 getWUV :: V3 Float -> V3 Float -> V3 Float -> (V3 Float,V3 Float,V3 Float)
 getWUV eye center up = (w,u,v) where w = normalize (eye ^-^ center)
-                                     u = up `cross` w
+                                     u = normalize (up `cross` w)
                                      v = w `cross` u
 
 -- >>>  translate (Vec3 1 2 (-1)) *. (Vec4 0 0 0 1)

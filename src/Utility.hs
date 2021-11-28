@@ -12,13 +12,24 @@ getRandPair seed = (realToFrac rnd1,realToFrac rnd2,rseed)
     where
         (rnd1,seed2) = randomDouble seed
         (rnd2,rseed) = randomDouble seed2
-        
+
 getRand :: PureMT -> (Float,PureMT)
 getRand seed = (realToFrac rnd,nseed)
     where
         (rnd,nseed) = randomDouble seed
 
-average3 :: V3 Float -> Float 
+getCircleSample :: PureMT -> (Float,Float,PureMT)
+getCircleSample seed = (x,y,rseed)
+    where
+        (rnd1,nseed) = randomDouble seed
+        (rnd2,rseed) = randomDouble nseed
+        theta  = realToFrac rnd2 * 2 * pi
+        x = cos theta
+        y = sin theta
+
+
+
+average3 :: V3 Float -> Float
 average3 (V3 a b c) = (a+b+c)/3
 
 identity3 :: M33 Float
