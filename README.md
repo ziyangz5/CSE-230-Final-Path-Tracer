@@ -4,7 +4,7 @@
 
 ## Architecture 
 
-We have a **scene parser** to load our (scene files)[Scene/scene3.test]. We also wrote a **transform library** to provide transformation operation, such as calcualte translation, scale, and rotation matrix.
+We have a **scene parser** to load our [scene files](Scene/scene3.test). We also wrote a **transform library** to provide transformation operation, such as calcualte translation, scale, and rotation matrix.
 
 The rendering part are mainly made up by three modules. Those modules have been completed.
 
@@ -25,7 +25,7 @@ After implementing those methods, we can render a 640x480 image with 128 samples
 
 ## Progress Evaluation
 
-The project is almost finished. The last part to do is the post-processing algorithm. Besides that, everything has been completed. Here is an image rendered by our path tracer.
+The project is almost finished. The last part to do is the post-processing algorithm, and some formal unit testing. Besides those, everything has been completed. Here is an image rendered by our path tracer.
 
 ![demo](scene_NQ.png)
 
