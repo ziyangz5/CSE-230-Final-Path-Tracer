@@ -112,10 +112,11 @@ getPhongBRDF kd ks s omega_i r = if norm ks < epsilon
                                     else kd ^/ pi + ks ^* ((s+2)/(2*pi)) ^* (max (dot r omega_i) 0 ** s)
 
 
-getGGXShadowTerm :: Float -> Float -> Float
-getGGXShadowTerm vncosine alpha = if vncosine <= 0 then 0 else 2 / (1 + sqrt (1 + alpha * alpha * (tan theta **2)))
+getGGXShadowTerm :: V3 Float -> V3 Float -> Float -> Float
+getGGXShadowTerm omega normal alpha = if vncosine <= 0 then 0 else 2 / (1 + sqrt (1 + alpha * alpha * (tan theta **2)))
     where
         theta = acos (min vncosine 1)
+        vncosine = dot omega normal
 
 getGGXMicroDistr :: V3 Float -> V3 Float ->Float -> Float
 getGGXMicroDistr h normal alpha = alpha2 / denominator
@@ -128,11 +129,11 @@ getGGXBRDF :: V3 Float -> V3 Float -> Float -> V3 Float -> V3 Float -> V3 Float 
 getGGXBRDF kd ks alpha normal omega_i omega_o r = if icosine <= 0 || ocosine <= 0 then V3 0 0 0 else  (kd ^/ pi) ^+^ ggxTerm
         where
             icosine = dot omega_i normal
-            ocosine = dot omega_i normal
+            ocosine = dot omega_o normal
             cosineTerm = 4 * icosine * ocosine
             h = normalize (omega_i + omega_o)
             _F = ks + (1 - ks) ^* ((1 - max (dot (normalize omega_i)  h) 0 ) ** 5)
-            _G = getGGXShadowTerm icosine alpha * getGGXShadowTerm ocosine alpha
+            _G = getGGXShadowTerm omega_i normal alpha * getGGXShadowTerm omega_o normal alpha
             _D = getGGXMicroDistr h normal alpha
             ggxTerm = (_F^*_G ^*_D) ^/ cosineTerm
 

@@ -3,6 +3,7 @@ import Linear
     ( (!+!),
       (*!!),
       normalize,
+      norm,
       cross,
       M44,
       V3(..),
@@ -48,8 +49,12 @@ getWUV eye center up = (w,u,v) where w = normalize (eye ^-^ center)
                                      u = normalize (up `cross` w)
                                      v = w `cross` u
 
--- >>>  translate (Vec3 1 2 (-1)) *. (Vec4 0 0 0 1)
--- Vec4 1.0 2.0 (-1.0) 1.0
+-- >>>  translate (V3 1 2 (-1))
+-- V4 (V4 1.0 0.0 0.0 1.0) (V4 0.0 1.0 0.0 2.0) (V4 0.0 0.0 1.0 (-1.0)) (V4 0.0 0.0 0.0 1.0)
 
 -- >>> (rotate (deg2rad 180) (Vec3 0 1 0) .*. translate (Vec3 1 0 0)) *. Vec4 0 0 0 1
 -- Vec4 (-1.0) 0.0 8.742278e-8 1.0
+
+-- >>>  getWUV (V3 0 2 3) (V3 2 (-1) 0) (V3 1 1 0)
+-- (V3 (-0.42640144) 0.6396021 0.6396021,V3 0.45749572 (-0.45749572) 0.76249284,V3 0.7803073 0.61774325 (-9.75384e-2))
+--

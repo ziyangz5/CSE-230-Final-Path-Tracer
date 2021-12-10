@@ -16,6 +16,8 @@ import Data.List (unfoldr)
 import BVH (buildBVH, BVHTree)
 import Control.Monad.State (evalState)
 import Control.Monad (when)
+import ImageLib (processImage)
+import System.Environment (getArgs)
 
 type RGB8 = (Pixel8, Pixel8, Pixel8)
 
@@ -24,18 +26,31 @@ type FRGB8 = (Float, Float, Float)
 
 main :: IO ()
 main = do
-          putStrLn "Initializing scene.."
-          scene <- runFile "Scene/scene3.test";
-          let bvh = evalState (buildBVH (getShapeList scene)) 0
-          putStrLn "Initialized."
-          putStrLn "Begin ray-tracing.."
-          let sampleNum = 150
-          let snf = fromIntegral sampleNum
-          fimg <-  rayTraceSampling sampleNum scene bvh
-          img <- computeP $ R.map (\rgb -> colorMapping rgb snf) fimg
-          putStrLn "Saving.."
-          (savePngImage "./test3.png" . ImageRGB8. flipVertically . toImage) img
-          putStrLn "Done"
+          args <- getArgs
+          if length args < 2 then
+            putStrLn "Incorrect number of arguments.(<path> <sampleNumber>)"
+          else
+            do
+              let (path,strssn) = (head args,last args)
+              putStrLn "Initializing scene.."
+              (scene,flag) <- runFile path;
+              if flag then
+                do
+                  let bvh = evalState (buildBVH (getShapeList scene)) 0
+                  putStrLn "Initialized."
+                  putStrLn "Begin ray-tracing.."
+                  let sampleNum = read strssn
+                  let snf = fromIntegral sampleNum
+                  fimg <-  rayTraceSampling sampleNum scene bvh
+                  img <- computeP $ R.map (\rgb -> colorMapping rgb snf) fimg
+                  putStrLn "Saving.."
+                  (saveBmpImage ("./" ++ getPath scene ++ ".bmp") . ImageRGB8. flipVertically . toImage) img
+                  putStrLn "RT Done"
+                  processImage ("./" ++ getPath scene ++ ".bmp") ("./" ++ getPath scene ++ "_pp.bmp")
+                  putStrLn "Post-processing Done"
+              else
+                  do
+                    putStrLn "Scene file has syntax error. Please check."
 
 colorMapping :: (Float,Float,Float)->Float -> RGB8
 colorMapping (r,g,b) snf = (fromIntegral $ min 255 (round $ ((r/snf)**(1/2.2))*255),

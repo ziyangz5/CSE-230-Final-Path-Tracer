@@ -81,7 +81,7 @@ m4tom3 (V4 (V4 a00 a01 a02 a03)
                                         (V3 a20 a21 a22)
 
 (@==@) :: Float -> Float -> Bool
-t1 @==@ t2 = abs (t1-t2) < 0.000001
+t1 @==@ t2 = abs (t1-t2) < sepsilon
 
 
 get3X :: V3 Float -> Float
@@ -109,3 +109,6 @@ sepsilon = 0.00001
 -- <interactive>:60:4-8: error:
 --     Variable not in scope: sm4 :: t0 -> M44 Float -> t
 --
+
+-- >>> deg2rad 189.88
+-- 3.3140314

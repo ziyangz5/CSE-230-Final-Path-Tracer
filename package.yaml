@@ -32,6 +32,7 @@ dependencies:
 - JuicyPixels-extra
 - mersenne-random-pure64
 - AC-Random
+- hspec
 library:
   source-dirs: src
 

@@ -44,6 +44,7 @@ library
     , JuicyPixels-extra
     , JuicyPixels-repa
     , base ==4.*
+    , hspec
     , linear
     , mersenne-random-pure64
     , mtl
@@ -67,6 +68,7 @@ executable CSE230-Final-Path-Tracer-exe
     , JuicyPixels-extra
     , JuicyPixels-repa
     , base ==4.*
+    , hspec
     , linear
     , mersenne-random-pure64
     , mtl
@@ -91,6 +93,7 @@ test-suite CSE230-Final-Path-Tracer-test
     , JuicyPixels-extra
     , JuicyPixels-repa
     , base ==4.*
+    , hspec
     , linear
     , mersenne-random-pure64
     , mtl

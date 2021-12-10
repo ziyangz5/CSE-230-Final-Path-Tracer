@@ -299,7 +299,7 @@ outputP = do
         spaces;
         string "output";
         spaces;
-        path <- many1 letter;
+        path <- many1 alphaNum;
         spaces;
         return $ C.Path path
     }
@@ -349,12 +349,12 @@ parseFromString p s = runParser p () "DUMMY" s
 parseFile :: FilePath -> IO (Either ParseError [Command])
 parseFile f = parseFromFile sceneP f
 
-runFile :: FilePath -> IO Store
+runFile :: FilePath -> IO (Store, Bool)
 runFile s = do
   p <- parseFile s
   case p of
-    Left err   -> do {print err;return defaultState}
-    Right commands -> return (execC commands defaultState)
+    Left err   -> do {print err;return (defaultState,False)}
+    Right commands -> return (execC commands defaultState,True)
 
 -- >>> runFile "Scene/scene1.test"
 -- MkStore ([Triangle (V3 (-1.0) (-1.0) 0.0) (V3 1.0 (-1.0) 0.0) (V3 1.0 1.0 0.0) (MkMaterial (V3 0.0 0.0 0.0) (V3 0.75 0.7 0.65) (V3 0.25 0.25 0.25) (V3 0.0 0.0 0.0) 25.0) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V3 (V3 1.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 0.0 1.0))],[PointLight (V3 4.0 0.0 4.0) (V3 0.5 0.5 0.5) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)),DirLight (V3 0.0 0.0 1.0) (V3 0.5 0.5 0.5) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0))],[V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)],MkMaterial (V3 0.0 0.0 0.0) (V3 0.75 0.7 0.65) (V3 0.25 0.25 0.25) (V3 0.0 0.0 0.0) 25.0,[V3 (-1.0) (-1.0) 0.0,V3 1.0 (-1.0) 0.0,V3 1.0 1.0 0.0],Camera (V3 0.0 (-4.0) 0.5) (V3 0.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 (-0.99227786) 0.12403473) (V3 0.12403473 0.0 (-0.0)) (V3 0.0 1.53846145e-2 0.123076916) 0.5235988 0.5235988,"./output.png",2,(100,100))
