@@ -26,7 +26,7 @@ pathTracer scene bvh hshape hitPos normal (Ray org dir rtype) depth rseed
   | otherwise = result
   where
       result@(V3 rr rg rb)
-        = if (dot omega_i normal < 0
+        = if (dot normal omega_i  < 0
                 || dot omega_i (normalize (omega_i - dir)) < 0)
                || (pdf < sepsilon) then
               V3 0 0 0
@@ -128,8 +128,8 @@ getGGXMicroDistr h normal alpha = alpha2 / denominator
 getGGXBRDF :: V3 Float -> V3 Float -> Float -> V3 Float -> V3 Float -> V3 Float -> V3 Float -> V3 Float
 getGGXBRDF kd ks alpha normal omega_i omega_o r = if icosine <= 0 || ocosine <= 0 then V3 0 0 0 else  (kd ^/ pi) ^+^ ggxTerm
         where
-            icosine = dot omega_i normal
-            ocosine = dot omega_o normal
+            icosine = dot normal omega_i 
+            ocosine = dot normal omega_o
             cosineTerm = 4 * icosine * ocosine
             h = normalize (omega_i + omega_o)
             _F = ks + (1 - ks) ^* ((1 - max (dot (normalize omega_i)  h) 0 ) ** 5)

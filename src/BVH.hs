@@ -141,13 +141,16 @@ testShape = [
             Triangle (V3 0 0 2) (V3 0 (-2) 2) (V3 1 0 1) dummyMat identity4 identity4 identity3,
             Triangle (V3 (-1) (-1) (-1)) (V3 0 1 0) (V3 1 0 0) dummyMat identity4 identity4 identity3]
 
+testShape2 :: [Shape]
+testShape2 = [Triangle (V3 0 (-3) 0) (V3 0 (-1) 0) (V3 (-1) 0 0) dummyMat identity4 identity4 identity3]
+            
 
 
-bvhhitResult :: Maybe (Shape, V3 Float, V3 Float, Float)
-bvhhitResult = getBVHClosetHit (Ray (V3 1 0 2) (V3 (-1) (-1) (-1)) 0) testBVH
+-- bvhhitResult :: Maybe (Shape, V3 Float, V3 Float, Float)
+-- bvhhitResult = getBVHClosetHit (Ray (V3 1 0 2) (V3 (-1) (-1) (-1)) 0) testBVH
 
-rbtest :: Bool
-rbtest = rayBBoxIntersection (Ray (V3 10 10 10) (V3 1 1 1) 0) (BBox (V3 15 15 15) (V3 50 50 50))
+-- rbtest :: Bool
+-- rbtest = rayBBoxIntersection (Ray (V3 10 10 10) (V3 1 1 1) 0) (BBox (V3 15 15 15) (V3 50 50 50))
 
 testBVH :: BVHTree
 testBVH = evalState (buildBVH testShape) 0
@@ -157,10 +160,12 @@ testBVH = evalState (buildBVH testShape) 0
 -- True
 --
 
-
--- >>> bvhhitResult
--- "tri int"
+-- >>> getBVHClosetHit (Ray (V3 1 0 2) (V3 (-1) (-1) (-1)) 0) testBVH
 -- Just (Triangle (V3 0.0 0.0 2.0) (V3 0.0 (-2.0) 2.0) (V3 1.0 0.0 1.0) (MkMaterial (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) 0.0) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V3 (V3 1.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 0.0 1.0)),V3 0.5 (-0.5) 1.5,V3 0.70710677 0.0 0.70710677,0.5)
+--
+
+-- >>> evalState (buildBVH [Triangle (V3 0 (-3) 0) (V3 0 (-1) 0) (V3 (-1) 0 0) dummyMat identity4 identity4 identity3]) 0
+-- Leaf (BBox (V3 (-1.001) (-3.001) (-1.0e-3)) (V3 1.0e-3 1.0e-3 1.0e-3)) (Triangle (V3 0.0 (-3.0) 0.0) (V3 0.0 (-1.0) 0.0) (V3 (-1.0) 0.0 0.0) (MkMaterial (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) (V3 0.0 0.0 0.0) 0.0) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V4 (V4 1.0 0.0 0.0 0.0) (V4 0.0 1.0 0.0 0.0) (V4 0.0 0.0 1.0 0.0) (V4 0.0 0.0 0.0 1.0)) (V3 (V3 1.0 0.0 0.0) (V3 0.0 1.0 0.0) (V3 0.0 0.0 1.0)))
 --
 
 -- >>> hitResult

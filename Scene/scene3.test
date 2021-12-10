@@ -1,13 +1,12 @@
-size 1000 700
+size 480 480
 output scene3
-camera 0 2 15 0 -1 0 0 1 0 50
+camera 0 10 15 0 -1 0 0 1 0 50
 maxdepth 5
 specular 0.7 0.7 0.7
 shininess 0.5
 emission 0 0 0
 diffuse 0.5 0.5 0.5
 
-#planar face
 vertex -1 +1 0
 vertex -1 -1 0
 vertex +1 -1 0

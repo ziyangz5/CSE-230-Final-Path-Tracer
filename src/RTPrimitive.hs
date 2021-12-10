@@ -85,6 +85,6 @@ test :: Maybe (V3 Float, V3 Float, Float)
 test = hasIntersection (Ray (V3 0 0 0) (V3 1 0 1) 0)  (Triangle (V3 0 (-2) 4) (V3 3 2 3)  (V3 4 (-2) 0)  dummyMat (translate (V3 0 1 0))  (inv44 (translate (V3 0 1 0))) (transpose $ inv33 (m4tom3 $ translate (V3 0 1 0))))
 
 -- >>> test
--- Just (V3 2.25 0.0 2.25,V3 (-0.6666667) 0.33333334 (-0.6666667))
+-- sphereIntersect (Ray (V3 0 0 0) (V3 1 0 1) 0) 1.0 (V3 0 0 0)
 
 
